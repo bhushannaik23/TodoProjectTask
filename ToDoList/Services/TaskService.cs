@@ -32,5 +32,29 @@ namespace ToDoList.Services
                 Message = "Task created successfully."
             };
         }
+
+        public async Task<GetTasksResponse> GetTasksAsync(GetTasksRequest request)
+        {
+            var pagedResult = await _taskRepository.GetTasksAsync(request);
+
+            var response = new GetTasksResponse
+            {
+                Items = pagedResult.Items.Select(task => new TaskResponse
+                {
+                    Id = task.TaskItemId,
+                    Title = task.Title,
+                    Description = task.Description,
+                    DueDate = task.DueDate,
+                    Status = task.Status.StatusName
+                }),
+
+                Page = request.Page,
+                PageSize = request.PageSize,
+                TotalCount = pagedResult.TotalCount,
+                TotalPages = (int)Math.Ceiling((double)pagedResult.TotalCount / request.PageSize)
+            };
+
+            return response;
+        }
     }
 }

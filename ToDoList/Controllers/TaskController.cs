@@ -26,5 +26,13 @@ namespace ToDoList.Controllers
                 new { id = response.TaskId },
                 response);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetTasks([FromQuery] GetTasksRequest request)
+        {
+            var response = await _taskService.GetTasksAsync(request);
+
+            return Ok(response);
+        }
     }
 }
