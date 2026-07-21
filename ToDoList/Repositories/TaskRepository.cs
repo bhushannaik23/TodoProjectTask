@@ -1,6 +1,9 @@
-﻿using ToDoList.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using ToDoList.Data;
+using ToDoList.DTOs;
 using ToDoList.Entities;
 using ToDoList.Interfaces;
+using ToDoList.Models;
 
 namespace ToDoList.Repositories
 {
@@ -21,5 +24,28 @@ namespace ToDoList.Repositories
 
             return task;
         }
+
+        public async Task<PagedTaskResult> GetTasksAsync(GetTasksRequest request)
+        {
+            var query = _context.Tasks
+                        .AsNoTracking()
+                        .AsQueryable();
+
+            var totalCount = await query.CountAsync();
+
+            var tasks = await query
+                .Include(t => t.Status)
+                .OrderBy(t => t.DueDate)
+                .Skip((request.Page - 1) * request.PageSize)
+                .Take(request.PageSize)
+                .ToListAsync();
+
+            return new PagedTaskResult
+            {
+                Items = tasks,
+                TotalCount = totalCount
+            };
+        }
     }
+
 }
