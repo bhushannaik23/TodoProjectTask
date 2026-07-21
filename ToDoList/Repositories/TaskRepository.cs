@@ -46,6 +46,32 @@ namespace ToDoList.Repositories
                 TotalCount = totalCount
             };
         }
+
+        public async Task<TaskItem?> GetTaskByIdAsync(int id)
+        {
+            return await _context.Tasks
+                .AsNoTracking()
+                .Include(t => t.Status)
+                .FirstOrDefaultAsync(t => t.TaskItemId == id);
+        }
+
+        public async Task<TaskItem?> GetTrackedTaskByIdAsync(int id)
+        {
+            return await _context.Tasks
+                .FirstOrDefaultAsync(t => t.TaskItemId == id);
+        }
+
+        public Task DeleteTaskAsync(TaskItem task)
+        {
+            _context.Tasks.Remove(task);
+
+            return Task.CompletedTask;
+        }
+
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
+        }
     }
 
 }

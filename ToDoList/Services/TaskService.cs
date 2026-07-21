@@ -56,5 +56,38 @@ namespace ToDoList.Services
 
             return response;
         }
+
+        public async Task<TaskResponse> GetTaskByIdAsync(int id)
+        {
+            var task = await _taskRepository.GetTaskByIdAsync(id);
+
+            if (task is null)
+            {
+                throw new KeyNotFoundException($"Task with Id {id} was not found.");
+            }
+
+            return new TaskResponse
+            {
+                Id = task.TaskItemId,
+                Title = task.Title,
+                Description = task.Description,
+                DueDate = task.DueDate,
+                Status = task.Status.StatusName
+            };
+        }
+
+        public async Task DeleteTaskAsync(int id)
+        {
+            var task = await _taskRepository.GetTrackedTaskByIdAsync(id);
+
+            if (task is null)
+            {
+                throw new KeyNotFoundException($"Task with Id {id} was not found.");
+            }
+
+            await _taskRepository.DeleteTaskAsync(task);
+
+            await _taskRepository.SaveChangesAsync();
+        }
     }
 }

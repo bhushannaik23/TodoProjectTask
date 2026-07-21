@@ -34,5 +34,21 @@ namespace ToDoList.Controllers
 
             return Ok(response);
         }
+
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> GetTaskById(int id)
+        {
+            var response = await _taskService.GetTaskByIdAsync(id);
+
+            return Ok(response);
+        }
+
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> DeleteTask(int id)
+        {
+            await _taskService.DeleteTaskAsync(id);
+
+            return NoContent();
+        }
     }
 }
