@@ -61,11 +61,18 @@ namespace ToDoList.Repositories
                 .FirstOrDefaultAsync(t => t.TaskItemId == id);
         }
 
+
         public Task DeleteTaskAsync(TaskItem task)
         {
             _context.Tasks.Remove(task);
 
             return Task.CompletedTask;
+        }
+
+        public async Task<bool> StatusExistsAsync(int statusId)
+        {
+            return await _context.Statuses
+                .AnyAsync(s => s.StatusId == statusId);
         }
 
         public async Task SaveChangesAsync()

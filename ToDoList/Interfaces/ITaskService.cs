@@ -11,6 +11,8 @@ namespace ToDoList.Interfaces
         Task<TaskResponse> GetTaskByIdAsync(int id);
 
         Task DeleteTaskAsync(int id);
+
+        Task UpdateTaskAsync(int id, UpdateTaskRequest request);
     }
 }
 

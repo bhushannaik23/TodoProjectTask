@@ -50,5 +50,15 @@ namespace ToDoList.Controllers
 
             return NoContent();
         }
+
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> UpdateTask(
+    int id,
+    [FromBody] UpdateTaskRequest request)
+        {
+            await _taskService.UpdateTaskAsync(id, request);
+
+            return NoContent();
+        }
     }
 }

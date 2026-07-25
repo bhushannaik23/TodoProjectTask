@@ -1,6 +1,7 @@
 ﻿using ToDoList.Constants;
 using ToDoList.DTOs;
 using ToDoList.Entities;
+using ToDoList.Exceptions;
 using ToDoList.Interfaces;
 
 namespace ToDoList.Services
@@ -86,6 +87,30 @@ namespace ToDoList.Services
             }
 
             await _taskRepository.DeleteTaskAsync(task);
+
+            await _taskRepository.SaveChangesAsync();
+        }
+
+        public async Task UpdateTaskAsync(int id, UpdateTaskRequest request)
+        {
+            var task = await _taskRepository.GetTrackedTaskByIdAsync(id);
+
+            if (task is null)
+            {
+                throw new ResourceNotFoundException($"Task with Id {id} was not found.");
+            }
+
+            var statusExists = await _taskRepository.StatusExistsAsync(request.StatusId);
+
+            if (!statusExists)
+            {
+                throw new BadRequestException($"Status with Id {request.StatusId} does not exist.");
+            }
+
+            task.Title = request.Title;
+            task.Description = request.Description;
+            task.DueDate = request.DueDate;
+            task.StatusId = request.StatusId;
 
             await _taskRepository.SaveChangesAsync();
         }

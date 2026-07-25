@@ -16,6 +16,9 @@ namespace ToDoList.Interfaces
 
         Task DeleteTaskAsync(TaskItem task);
 
+        Task<bool> StatusExistsAsync(int statusId);
+
         Task SaveChangesAsync();
+
     }
 }
