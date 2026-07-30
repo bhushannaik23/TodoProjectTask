@@ -1,4 +1,5 @@
-﻿using ToDoList.Constants;
+﻿using AutoMapper;
+using ToDoList.Constants;
 using ToDoList.DTOs;
 using ToDoList.Entities;
 using ToDoList.Exceptions;
@@ -10,20 +11,25 @@ namespace ToDoList.Services
     {
         private readonly ITaskRepository _taskRepository;
 
-        public TaskService(ITaskRepository taskRepository)
+        private readonly IMapper _mapper;
+
+        public TaskService(ITaskRepository taskRepository, IMapper mapper)
         {
             _taskRepository = taskRepository;
+            _mapper = mapper;
         }
 
         public async Task<CreateTaskResponse> AddAsync(CreateTaskRequest request)
         {
-            var task = new TaskItem
-            {
-                Title = request.Title,
-                Description = request.Description,
-                DueDate = request.DueDate ?? DateTime.Today,
-                StatusId = StatusConstants.Pending
-            };
+            //var task = new TaskItem
+            //{
+            //    Title = request.Title,
+            //    Description = request.Description,
+            //    DueDate = request.DueDate ?? DateTime.Today,
+            //    StatusId = StatusConstants.Pending
+            //};
+
+            var task = _mapper.Map<TaskItem>(request);
 
             var createdTask = await _taskRepository.AddAsync(task);
 
@@ -38,16 +44,18 @@ namespace ToDoList.Services
         {
             var pagedResult = await _taskRepository.GetTasksAsync(request);
 
-            var response = new GetTasksResponse
-            {
-                Items = pagedResult.Items.Select(task => new TaskResponse
-                {
-                    Id = task.TaskItemId,
-                    Title = task.Title,
-                    Description = task.Description,
-                    DueDate = task.DueDate,
-                    Status = task.Status.StatusName
-                }),
+            var response = new GetTasksResponse { 
+            //{
+            //    Items = pagedResult.Items.Select(task => new TaskResponse
+            //    {
+            //        Id = task.TaskItemId,
+            //        Title = task.Title,
+            //        Description = task.Description,
+            //        DueDate = task.DueDate,
+            //        Status = task.Status.StatusName
+            //    }),
+
+                Items = _mapper.Map<IEnumerable<TaskResponse>>(pagedResult.Items),
 
                 Page = request.Page,
                 PageSize = request.PageSize,
@@ -67,14 +75,16 @@ namespace ToDoList.Services
                 throw new KeyNotFoundException($"Task with Id {id} was not found.");
             }
 
-            return new TaskResponse
-            {
-                Id = task.TaskItemId,
-                Title = task.Title,
-                Description = task.Description,
-                DueDate = task.DueDate,
-                Status = task.Status.StatusName
-            };
+            //return new TaskResponse
+            //{
+            //    Id = task.TaskItemId,
+            //    Title = task.Title,
+            //    Description = task.Description,
+            //    DueDate = task.DueDate,
+            //    Status = task.Status.StatusName
+            //};
+
+            return _mapper.Map<TaskResponse>(task);
         }
 
         public async Task DeleteTaskAsync(int id)
@@ -107,10 +117,12 @@ namespace ToDoList.Services
                 throw new BadRequestException($"Status with Id {request.StatusId} does not exist.");
             }
 
-            task.Title = request.Title;
-            task.Description = request.Description;
-            task.DueDate = request.DueDate;
-            task.StatusId = request.StatusId;
+            //task.Title = request.Title;
+            //task.Description = request.Description;
+            //task.DueDate = request.DueDate;
+            //task.StatusId = request.StatusId;
+
+            _mapper.Map(request, task);
 
             await _taskRepository.SaveChangesAsync();
         }

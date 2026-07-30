@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using ToDoList.Data;
 using ToDoList.Extensions;
 using ToDoList.Interfaces;
+using ToDoList.Mappings;
 using ToDoList.Repositories;
 using ToDoList.Services;
 using ToDoList.Validators;
@@ -23,6 +24,8 @@ builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddControllers();
 
 builder.Services.AddFluentValidationAutoValidation();
+
+builder.Services.AddAutoMapper(typeof(TaskMappingProfile));
 
 builder.Services.AddValidatorsFromAssemblyContaining<CreateTaskRequestValidator>();
 
