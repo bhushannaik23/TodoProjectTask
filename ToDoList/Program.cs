@@ -2,7 +2,9 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using ToDoList.Data;
+using ToDoList.Extensions;
 using ToDoList.Interfaces;
+using ToDoList.Mappings;
 using ToDoList.Repositories;
 using ToDoList.Services;
 using ToDoList.Validators;
@@ -23,6 +25,8 @@ builder.Services.AddControllers();
 
 builder.Services.AddFluentValidationAutoValidation();
 
+builder.Services.AddAutoMapper(typeof(TaskMappingProfile));
+
 builder.Services.AddValidatorsFromAssemblyContaining<CreateTaskRequestValidator>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -37,6 +41,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseGlobalExceptionMiddleware();
 
 app.UseHttpsRedirection();
 

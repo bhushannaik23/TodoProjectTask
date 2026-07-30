@@ -26,5 +26,39 @@ namespace ToDoList.Controllers
                 new { id = response.TaskId },
                 response);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetTasks([FromQuery] GetTasksRequest request)
+        {
+            var response = await _taskService.GetTasksAsync(request);
+
+            return Ok(response);
+        }
+
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> GetTaskById(int id)
+        {
+            var response = await _taskService.GetTaskByIdAsync(id);
+
+            return Ok(response);
+        }
+
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> DeleteTask(int id)
+        {
+            await _taskService.DeleteTaskAsync(id);
+
+            return NoContent();
+        }
+
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> UpdateTask(
+    int id,
+    [FromBody] UpdateTaskRequest request)
+        {
+            await _taskService.UpdateTaskAsync(id, request);
+
+            return NoContent();
+        }
     }
 }
