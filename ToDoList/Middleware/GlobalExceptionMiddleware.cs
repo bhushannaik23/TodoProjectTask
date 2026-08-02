@@ -27,7 +27,32 @@ public sealed class GlobalExceptionMiddleware
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, exception.Message);
+            //   _logger.LogError(exception, exception.Message);
+
+            //_logger.LogError(
+            //  exception,
+            //  "Unhandled exception. TraceId: {TraceId}, Method: {Method}, Path: {Path}",
+            //   context.TraceIdentifier,
+            //   context.Request.Method,
+            //   context.Request.Path);
+
+            switch (exception)
+            {
+                case ResourceNotFoundException:
+                case BadRequestException:
+                case ValidationException:
+                    _logger.LogWarning(exception, exception.Message);
+                    break;
+
+                default:
+                    _logger.LogError(
+                        exception,
+                        "Unhandled exception. TraceId: {TraceId}, Method: {Method}, Path: {Path}",
+                        context.TraceIdentifier,
+                        context.Request.Method,
+                        context.Request.Path);
+                    break;
+            }
 
             await HandleExceptionAsync(context, exception);
         }
