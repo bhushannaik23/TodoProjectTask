@@ -18,7 +18,10 @@ namespace ToDoList.Mappings
                 opt => opt.MapFrom(src => StatusConstants.Pending)); 
 
             CreateMap<TaskItem, TaskResponse>()
-                .ForMember(
+                 .ForMember(
+                   dest => dest.Id,
+                   opt => opt.MapFrom(src => src.TaskItemId))
+                 .ForMember(
                     dest => dest.Status,
                     opt => opt.MapFrom(src => src.Status.StatusName));
 
