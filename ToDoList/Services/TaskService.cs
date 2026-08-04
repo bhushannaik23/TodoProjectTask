@@ -13,14 +13,23 @@ namespace ToDoList.Services
 
         private readonly IMapper _mapper;
 
-        public TaskService(ITaskRepository taskRepository, IMapper mapper)
+        private readonly ILogger<TaskService> _logger;
+
+        public TaskService(ITaskRepository taskRepository, IMapper mapper, ILogger<TaskService> logger)
         {
             _taskRepository = taskRepository;
             _mapper = mapper;
+            _logger = logger;
         }
 
         public async Task<CreateTaskResponse> AddAsync(CreateTaskRequest request)
         {
+
+            _logger.LogInformation(
+             "Creating task with title '{Title}' and status ID {DueDate}.",
+             request.Title,
+             request.DueDate);
+
             //var task = new TaskItem
             //{
             //    Title = request.Title,
@@ -33,6 +42,10 @@ namespace ToDoList.Services
 
             var createdTask = await _taskRepository.AddAsync(task);
 
+            _logger.LogInformation(
+            "Task created successfully with ID {TaskId}.",
+             task.TaskItemId);
+
             return new CreateTaskResponse
             {
                 TaskId = createdTask.TaskItemId,
@@ -42,6 +55,11 @@ namespace ToDoList.Services
 
         public async Task<GetTasksResponse> GetTasksAsync(GetTasksRequest request)
         {
+            _logger.LogInformation(
+             "Retrieving tasks. Page: {Page}, PageSize: {PageSize}.",
+              request.Page,
+              request.PageSize);
+
             var pagedResult = await _taskRepository.GetTasksAsync(request);
 
             var response = new GetTasksResponse { 
@@ -63,16 +81,28 @@ namespace ToDoList.Services
                 TotalPages = (int)Math.Ceiling((double)pagedResult.TotalCount / request.PageSize)
             };
 
+            _logger.LogInformation(
+           "Retrieved {TaskCount} tasks.",
+            response.Items.Count());
+
             return response;
         }
 
         public async Task<TaskResponse> GetTaskByIdAsync(int id)
         {
+            _logger.LogInformation(
+                "Retrieving task with ID {TaskId}.",
+                 id);
+
             var task = await _taskRepository.GetTaskByIdAsync(id);
 
             if (task is null)
             {
-                throw new KeyNotFoundException($"Task with Id {id} was not found.");
+                _logger.LogWarning(
+                 "Task with ID {TaskId} was not found.",
+                 id);
+
+                throw new ResourceNotFoundException($"Task with Id {id} was not found.");
             }
 
             //return new TaskResponse
@@ -84,25 +114,45 @@ namespace ToDoList.Services
             //    Status = task.Status.StatusName
             //};
 
+            _logger.LogInformation(
+              "Task with ID {TaskId} retrieved successfully.",
+              id);
+
             return _mapper.Map<TaskResponse>(task);
         }
 
         public async Task DeleteTaskAsync(int id)
         {
+            _logger.LogInformation(
+            "Deleting task with ID {TaskId}.",
+            id);
+
             var task = await _taskRepository.GetTrackedTaskByIdAsync(id);
 
             if (task is null)
             {
-                throw new KeyNotFoundException($"Task with Id {id} was not found.");
+                _logger.LogWarning(
+                "Task with ID {TaskId} was not found for deletion.",
+                id);
+
+                throw new ResourceNotFoundException($"Task with Id {id} was not found.");
             }
 
             await _taskRepository.DeleteTaskAsync(task);
 
             await _taskRepository.SaveChangesAsync();
+
+            _logger.LogInformation(
+            "Task with ID {TaskId} deleted successfully.",
+            id);
         }
 
         public async Task UpdateTaskAsync(int id, UpdateTaskRequest request)
         {
+            _logger.LogInformation(
+            "Updating task with ID {TaskId}.",
+            id);
+
             var task = await _taskRepository.GetTrackedTaskByIdAsync(id);
 
             if (task is null)
@@ -114,6 +164,11 @@ namespace ToDoList.Services
 
             if (!statusExists)
             {
+                _logger.LogWarning(
+                "Invalid status ID {StatusId} provided while updating task {TaskId}.",
+                 request.StatusId,
+                 id);
+
                 throw new BadRequestException($"Status with Id {request.StatusId} does not exist.");
             }
 
@@ -125,6 +180,10 @@ namespace ToDoList.Services
             _mapper.Map(request, task);
 
             await _taskRepository.SaveChangesAsync();
+
+            _logger.LogInformation(
+            "Task with ID {TaskId} updated successfully.",
+            id);
         }
     }
 }

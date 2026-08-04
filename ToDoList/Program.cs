@@ -1,6 +1,7 @@
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 using ToDoList.Data;
 using ToDoList.Extensions;
 using ToDoList.Interfaces;
@@ -9,7 +10,15 @@ using ToDoList.Repositories;
 using ToDoList.Services;
 using ToDoList.Validators;
 
+
+
 var builder = WebApplication.CreateBuilder(args);
+
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .CreateLogger();
+
+builder.Host.UseSerilog();
 
 // Add services to the container.
 
@@ -51,3 +60,5 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+public partial class Program { }
